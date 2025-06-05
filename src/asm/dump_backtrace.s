@@ -1,28 +1,34 @@
 .globl dump_backtrace
 .type dump_backtrace, @function
 dump_backtrace:
-	push %rbp
-	mov %rsp, %rbp
+        push %rbp
+        mov %rsp, %rbp
 
-	mov %rbp, %rbx
+        mov %rbp, %rbx
 loop:
-	test %rbx, %rbx
-	jz done
+        mov 8(%rbx), %rdi
+        call _dump_backtrace
 
-	mov 8(%rbx), %rdi
-	test %rdi, %rdi
-	jz done
+        test (%rbx), %rbx
+        jz done
 
-	call _dump_backtrace
-	mov (%rbx), %rbx
+        mov (%rbx), %rbx
+        jmp loop
 
-	jmp loop
 done:
-	mov %rbp, %rsp
-	pop %rbp
-	ret
+        mov $1, %rax
+        mov $1, %rdi
+        lea done_str(%rip), %rsi
+        mov $18, %rdx
+        syscall
 
+        mov %rbp, %rsp
+        pop %rbp
+        ret
 
 .section .rodata
 backtrace_format_str:
 .asciz "%3ld: [%lx] %s () %s\n"
+
+done_str:
+.asciz "Inside done label\n"
