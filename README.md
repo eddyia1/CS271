@@ -175,4 +175,4 @@ Rather than accessing these members directly in C, the program instead accesses 
 
 ## Usage
 
-Use "Make all" to run the test file for both programs.
+Use "make" to run the test file for both programs.
