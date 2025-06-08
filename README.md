@@ -1,5 +1,5 @@
 # CS271 - Final Project
-**Note**: Our default implementation of the dump_registers program is imeplemented in debug.c and assembly. If we were supposed to implement dump_registers entirely in assembly, we included another program called dump_registers_asm.txt in the src folder. Both programs yield the same output.
+**Note**: Our default implementation of the dump_backtrace program is implemented in debug.c and assembly. If we were supposed to implement dump_backtrace entirely in assembly, we included another program called dump_backtrace_asm.txt in the /src/asm folder. However, both programs yield the same output.
 
 ## Authors
 - Alexander Blajev 
