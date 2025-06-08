@@ -1,4 +1,4 @@
-# CS271
+# CS271 - Final Project
 
 ## Authors
 - Alexander Blajev 
@@ -7,15 +7,115 @@
 
 ## Overview
 
-This project contains two assembly programs:
+This project supports two features:
 
-### Register Dump
+  1. **Register Dump:** The register dump program prints to the terminal the decimal and hex value of the 16 most common registers in amd64 assembly. It prints register name, register value in decimal, and register value in hexadecimal. It is useful for debugging and understanding the state of the computer at a specific point during execution. The program operates on the following registers:
+  ```
+  rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp, r8–r15
+  ```
+     
+  2. **Stack Backtrace:** The stack backtrace program traverses the current call stack and prints it to the terminal. It utilizes the dladdr function, and prints depth, symbol address, symbol name, and file name. For this project, we included two versions of the program for implementing  the backtrace.
 
-The register dump program outputs the current values of all general-purpose registers. It is useful for debugging and understanding the state of the processor at a specific point in program execution.
+## Register Dump 
+The assembly implementation of the register dump is as follows:
 
-### Stack Backtrace
+```asm
+dump_registers:
+        push %rax
+        push %rbx
+        push %rcx
+        push %rdx
+        push %rsi
+        push %rdi
+        push %rbp
 
-The stack backtrace program traverses the call stack and prints out the sequence of function calls that led to the current point in execution. This helps in debugging by showing the path taken through the code.
+        /* Calculate offset for initial value of rsp */
+        leaq (8*8)(%rsp), %rax
+        push %rax
+
+        push %r8
+        push %r9
+        push %r10
+        push %r11
+        push %r12
+        push %r13
+        push %r14
+        push %r15
+
+        /* Pass the stack pointer into the first arg */
+        movq %rsp, %rdi
+
+        call _debug_dump_registers
+
+        /* Restore the stack pointer */
+        leaq (16*8)(%rsp), %rsp
+
+        ret
+```
+  The assembly function operates by pushing every register to the stack, and then passing a pointer to the stack into a C print function. The initial value of rsp can be calculated through the simple formula of (8 * (Number of Pushes + 1)). The 1 offset accounts for the calling of the dump_registers function, which increments rsp's position by 8 bytes. Therefore, since we pushed 7 times before pushing rsp, the initial value of rsp is equal to an offset of (8 * (7+1)). We can store this in any of the previous registers since we have already pushed their value to the stack, but the program arbitrarily chooses rax for this.  
+<br>
+
+The C implementation of the register dump is as follows:
+```c
+void _debug_dump_registers(long const *regvalues)
+{
+        for(int i = 0; i < 16; i++)
+        {
+                printf("%s\t%ld (0x%lx)\n", regnames[i], regvalues[15-i], regvalues[15-i]);
+        }
+}
+```
+The function is self-explanatory and prints the relevant information for each register. The parameter of regvalues is the rsp stack pointer from the assembly program.
+
+## Stack Backtrace With C
+
+
+
+## Stack Backtrace Without C
+This version of the stack backtrace relies on calling dladdr from assembly directly, rather than inside a C function. The assembly implementation is as follows:
+
+```asm
+dump_backtrace:
+        /* Set up stack */
+        push %rbp
+        mov %rsp, %rbp
+
+        /* r13 will keep track of the current depth */
+        mov $0, %r13 
+
+        /* rbx will keep track of the rbp value */
+        mov %rbp, %r12
+loop:
+        /* Move the ret address into rdi and print it */
+        movq 8(%r12), %rdi
+        leaq dl_info(%rip), %rsi
+
+        call dladdr
+
+        /* Access dladdr struct pointer members and store them into the appropriate args for printf */
+        leaq backtrace_format_str(%rip), %rdi
+        movq %r13, %rsi /* Depth */
+        movq 24+dl_info(%rip), %rdx /* Symbol address */
+        movq 16+dl_info(%rip), %rcx /* Symbol name */
+        movq dl_info(%rip), %r8 /* File name */
+
+        xor %rax, %rax
+
+        call printf
+
+        /* Determine if the next depth is valid */
+        test (%r12), %r12
+        jz done
+
+        /* Increment depth */
+        incq %r13
+
+        /* Move on to the next depth*/
+        mov (%r12), %r12
+
+        jmp loop
+```
+The man page 
 
 ## Usage
 
