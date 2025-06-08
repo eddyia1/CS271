@@ -1,0 +1,59 @@
+.globl dump_backtrace
+.type dump_backtrace, @function
+dump_backtrace:
+        /* Set up stack */
+        push %rbp
+        mov %rsp, %rbp
+
+        mov $0, %r13 /* r13 will keep track of the current depth */
+
+        /* rbx will keep track of the rbp value */
+        mov %rbp, %r12
+loop:
+        /* Move the ret address into rdi and print it */
+        movq 8(%r12), %rdi
+        leaq dl_info(%rip), %rsi
+
+        call dladdr
+
+        leaq backtrace_format_str(%rip), %rdi
+        movq %r13, %rsi
+        movq 24+dl_info(%rip), %rdx
+        movq 16+dl_info(%rip), %rcx
+        movq dl_info(%rip), %r8
+
+        xor %rax, %rax
+
+        call printf
+
+        /* Determine if the next depth is valid */
+        test (%r12), %r12
+        jz done
+
+        incq %r13
+
+        /* Move on to the next depth*/
+        mov (%r12), %r12
+
+        jmp loop
+
+done:
+
+        /* Epilog */
+        mov %rbp, %rsp
+        pop %rbp
+
+        ret
+
+.section .rodata
+backtrace_format_str:
+.asciz "%3ld: [%lx] %s () %s\n"
+
+fname_str:
+.asciz "fname is: %s\n"
+
+debug_enter:
+.asciz "Made it here\n"
+
+.section .bss
+dl_info: .space 32
