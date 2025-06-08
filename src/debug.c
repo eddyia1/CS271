@@ -21,7 +21,7 @@ char const *regnames[] = {
     "r15",
 };
 
-int depth = 0; //Temporary global variable
+int depth = 0;
 
 /* Internal helper function */
 void _debug_dump_registers(long const *regvalues)
