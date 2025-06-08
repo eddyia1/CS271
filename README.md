@@ -14,7 +14,7 @@ This project supports two features:
   rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp, r8–r15
   ```
      
-  2. **Stack Backtrace:** The stack backtrace program traverses the current call stack and prints it to the terminal. It utilizes the dladdr function, and prints depth, symbol address, symbol name, and file name. For this project, we included two versions of the program for implementing  the backtrace.
+  2. **Stack Backtrace:** The stack backtrace program traverses the current call stack and prints it to the terminal. It utilizes the dladdr function, and prints depth, symbol address, symbol name, and file name. For this project, we included two versions of the stack backtrace. One program relies on a C file, while the other implements everything in assembly.
 
 ## Register Dump 
 The assembly implementation of the register dump is as follows:
