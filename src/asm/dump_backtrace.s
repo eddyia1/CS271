@@ -16,12 +16,6 @@ loop:
         jmp loop
 
 done:
-        mov $1, %rax
-        mov $1, %rdi
-        lea done_str(%rip), %rsi
-        mov $18, %rdx
-        syscall
-
         mov %rbp, %rsp
         pop %rbp
         ret
@@ -29,6 +23,3 @@ done:
 .section .rodata
 backtrace_format_str:
 .asciz "%3ld: [%lx] %s () %s\n"
-
-done_str:
-.asciz "Inside done label\n"
