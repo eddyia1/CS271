@@ -115,7 +115,20 @@ loop:
 
         jmp loop
 ```
-The man page 
+The man page for dladdr specifies a format of:
+```C
+typedef struct {
+               const char *dli_fname;  /* Pathname of shared object that
+                                          contains address */
+               void       *dli_fbase;  /* Base address at which shared
+                                          object is loaded */
+               const char *dli_sname;  /* Name of symbol whose definition
+                                          overlaps addr */
+               void       *dli_saddr;  /* Exact address of symbol named
+                                          in dli_sname */
+           } Dl_info;
+```
+Rather than accessing these members directly in C, the program instead accesses the members through a byte offset of the return value of dladdr. For example, dli_saddr is 3 memory addresses away from dli_fname, and therefore can be accessed by adding 24 to the start of the dli_info space. 
 
 ## Usage
 
