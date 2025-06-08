@@ -67,14 +67,55 @@ void _debug_dump_registers(long const *regvalues)
 ```
 The function is self-explanatory and prints the relevant information for each register. The parameter of regvalues is the rsp stack pointer from the assembly program.
 
-## Stack Backtrace With C
+## Stack Backtrace With C File
+This version of the stack backtrace relies on calling dladdr from a C function. The assembly implementation is as follows:
+```asm
+dump_backtrace:
+        /*Set up stack */
+        push %rbp
+        mov %rsp, %rbp
+
+        /* rbx will keep track of the current rbp position */
+        mov %rbp, %rbx
+loop:
+        /* Move the ret address into rdi */
+        mov 8(%rbx), %rdi
+        call _dump_backtrace
+
+        /* Test if the next address is valid */
+        test (%rbx), %rbx
+        jz done
+
+        /* Move on to the next function frame */
+        mov (%rbx), %rbx
+        jmp loop
+
+```
+The assembly implementation is rather simple. It relies on obtaining the ret address of the current function frame (8 offset from rbp's position), passing it into _dump_backtrace, and then dereferencing the current address to move onto the next frame.
+<br>
+The _dump_backtrace function is as follows;
+```c
+void _dump_backtrace(void* arg)
+{
+        Dl_info info;
+
+        dladdr(arg, &info);
+        printf("%3ld: [%lx] %s () %s\n", depth, info.dli_saddr, info.dli_sname, info.dli_fname);
+        depth++;
+}
+
+This function is also straightforward. Members of Dl_info are accessed with the dot operator and printed to the terminal. This contrasts with the approach of stack backtracing without a C file.
+
+```
 
 
-
-## Stack Backtrace Without C
+## Stack Backtrace Without C File
 This version of the stack backtrace relies on calling dladdr from assembly directly, rather than inside a C function. The assembly implementation is as follows:
 
 ```asm
+.section .bss
+dl_info: .space 32
+
 dump_backtrace:
         /* Set up stack */
         push %rbp
@@ -114,12 +155,9 @@ loop:
         mov (%r12), %r12
 
         jmp loop
-
-
-.section .bss
-dl_info: .space 32
 ```
 The man page for Dl_info specifies a format of:
+
 ```C
 typedef struct {
                const char *dli_fname;  /* Pathname of shared object that
