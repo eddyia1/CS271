@@ -104,11 +104,8 @@ void _dump_backtrace(void* arg)
         printf("%3ld: [%lx] %s () %s\n", depth, info.dli_saddr, info.dli_sname, info.dli_fname);
         depth++;
 }
-
-This function is also straightforward. Members of Dl_info are accessed with the dot operator and printed to the terminal. This contrasts with the approach of stack backtracing without a C file.
-
 ```
-
+This function is also straightforward. Members of Dl_info are accessed with the dot operator and printed to the terminal. This contrasts with the approach of stack backtracing without a C file.
 
 ## Stack Backtrace Without C File
 This version of the stack backtrace relies on calling dladdr from assembly directly, rather than inside a C function. The assembly implementation is as follows:
