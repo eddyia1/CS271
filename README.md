@@ -1,5 +1,7 @@
 # CS271 - Final Project
-**Note**: Our default implementation of the dump_backtrace program is implemented in debug.c and assembly. If we were supposed to implement dump_backtrace entirely in assembly, we included another program called dump_backtrace_asm.txt in the /src/asm folder. However, both programs yield the same output.
+**Note 1**: Our default implementation of the dump_backtrace program is implemented in debug.c and assembly. If we were supposed to implement dump_backtrace entirely in assembly, we included another program called dump_backtrace_asm.txt in the /src/asm folder. However, both programs yield the same output.
+**Note 2**: The makefile works automatically on Rocky Linux 9.5 (flip server), but other Linux distributions such as Ubuntu may require the 
+-no-pie flag in the makefile.
 
 ## Authors
 - Alexander Blajev 
